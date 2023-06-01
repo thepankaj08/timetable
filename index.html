@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Schedule</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teacher Schedule</h1>
+  
+  <table id="teachertable">
+    <!-- The table will be populated dynamically -->
+  </table>
+
+  <script>
+    fetch('C:\Users\ADMIN\Desktop\Pankaj DCP\mondaycsv.csv')
+      .then(response => response.text())
+      .then(csvData => {
+        const rows = csvData.split('\n');
+        const table = document.getElementById('teachertable');
+        
+        rows.forEach(row => {
+          const cells = row.split(',');
+          const tableRow = document.createElement('tr');
+
+          cells.forEach(cell => {
+            const tableCell = document.createElement('td');
+            tableCell.textContent = cell.trim();
+            tableRow.appendChild(tableCell);
+          });
+
+          table.appendChild(tableRow);
+        });
+      });
+  </script>
+</body>
+</html>
