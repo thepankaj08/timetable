@@ -91,6 +91,9 @@
       color: red;
       font-style: italic;
     }
+    .summary-table {
+      width: 50%; /* Set the desired width value */
+    }
 
     
   </style>
@@ -106,7 +109,10 @@
     
     <h2>Class Table</h2>
     <table id="classTable"></table>
+    <h2>Summary Table</h2>
+    <table id="summaryTable"></table>
   </div>
+  
 
   <script>
     function handleFileSelect(evt) {
@@ -212,6 +218,7 @@
       });
 
       document.getElementById("resultTableContainer").style.display = "block";
+      updateSummaryTable();
     }
 
     function getTeacherForClass(data, period, className) {
@@ -225,23 +232,70 @@
     }
 
     function updateClassTable(className, teacherName) {
-  var classTable = document.getElementById("classTable");
-  var rows = classTable.getElementsByTagName("tr");
+      var classTable = document.getElementById("classTable");
+      var rows = classTable.getElementsByTagName("tr");
 
-  for (var i = 0; i < rows.length; i++) {
-    var cells = rows[i].getElementsByTagName("td");
+      for (var i = 0; i < rows.length; i++) {
+        var cells = rows[i].getElementsByTagName("td");
 
-    for (var j = 0; j < cells.length; j++) {
-      var cell = cells[j];
+        for (var j = 0; j < cells.length; j++) {
+          var cell = cells[j];
 
-      if (cell.textContent.includes(teacherName)) {
-        cell.classList.add("absent");
-        cell.classList.add("modified");
-        cell.textContent = teacherName + "-ab";
+          if (cell.textContent.includes(teacherName)) {
+            cell.classList.add("absent");
+            cell.classList.add("modified");
+            cell.textContent = teacherName + "-ab";
+          }
+        }
+      }
+
+      // Update the summary table
+      updateSummaryTable();
+    }
+
+
+    function updateSummaryTable() {
+      var classTable = document.getElementById("classTable");
+      var summaryTable = document.getElementById("summaryTable");
+      var teacherRows = document.querySelectorAll("#teacherTable tr");
+      var classRows = classTable.getElementsByTagName("tr");
+      var summaryTable = document.getElementById("summaryTable");
+      summaryTable.classList.add("summary-table"); // Add CSS class to the summary table
+      
+      // Clear the summary table
+      summaryTable.innerHTML = "";
+
+      // Create header row for summary table
+      var summaryHeaderRow = summaryTable.insertRow();
+      summaryHeaderRow.insertCell().textContent = "Teacher";
+      summaryHeaderRow.insertCell().textContent = "Total Classes";
+      
+      // Iterate over each teacher and calculate the total number of classes
+      for (var i = 1; i < teacherRows.length; i++) {
+        var teacherCell = teacherRows[i].cells[0];
+        var teacherName = teacherCell.textContent;
+        var totalClasses = 0;
+
+        // Count the number of classes for the teacher in the class table
+        for (var j = 1; j < classRows.length; j++) {
+          var cells = classRows[j].getElementsByTagName("td");
+
+          for (var k = 0; k < cells.length; k++) {
+            var cell = cells[k];
+            if (cell.textContent === teacherName) {
+              totalClasses++;
+            }
+          }
+        }
+
+        // Create a row in the summary table for the teacher
+        var summaryRow = summaryTable.insertRow();
+        summaryRow.insertCell().textContent = teacherName;
+        summaryRow.insertCell().textContent = totalClasses;
       }
     }
-  }
-}
+
+
 
 
     function clearClassTable(className) {
@@ -327,6 +381,7 @@
         if (selectedTeacher) {
           cell.textContent = selectedTeacher;
           cell.classList.add("edited-cell");
+          updateSummaryTable();
         }
         closeReplacementDialog();
       });
@@ -350,6 +405,8 @@
             document.body.removeChild(dialogOverlay);
         }, 100);
     }
+    
+
     var fileInput = document.getElementById("csvFileInput");
     fileInput.addEventListener("change", handleFileSelect, false);
   </script>
