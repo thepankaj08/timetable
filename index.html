@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Time Table</title>
+  <title>CSV File Upload</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -94,12 +94,49 @@
     .summary-table {
       width: 50%; /* Set the desired width value */
     }
+    .legends {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-left: 20px;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      margin-right: 5px;
+    }
+
+    .absent {
+      background-color: #ff8888;
+    }
+
+    .occupied {
+      background-color: blue;
+    }
+
 
     
   </style>
 </head>
 <body>
   <h1>TIME TABLE</h1>
+  <div class="legends">
+    <span class="legend-item">
+      <div class="color-box absent"></div>
+      <span>Absent</span>
+    </span>
+    <span class="legend-item">
+      <div class="color-box occupied"></div>
+      <span>Occupied</span>
+    </span>
+  </div>
+
   <input type="file" id="csvFileInput" accept=".csv" />
   <br /><br />
 
@@ -328,6 +365,15 @@
       titleLabel.textContent = "Select Replacement Teacher";
       dialogBox.appendChild(titleLabel);
 
+      var cellInfoLabel = document.createElement("p");
+      cellInfoLabel.classList.add("cell-info-label");
+
+      var className = cell.parentElement.cells[0].textContent;
+      var period = cell.parentElement.cells[cell.cellIndex].textContent;
+
+      cellInfoLabel.textContent = "Editing cell: " + className + " | " + period;
+      dialogBox.appendChild(cellInfoLabel);
+
       var selectLabel = document.createElement("label");
       selectLabel.textContent = "Teacher:";
       dialogBox.appendChild(selectLabel);
@@ -345,16 +391,13 @@
       selectTeacher.appendChild(optionDefault);
 
       // Add options for each teacher in the dropdown
-      // Add options for each available teacher in the dropdown
-      // Add options for each teacher in the dropdown
-      // Add options for each teacher in the dropdown
       var teacherRows = document.querySelectorAll("#teacherTable tr");
       for (var i = 1; i < teacherRows.length; i++) {
         var teacherCell = teacherRows[i].cells[0];
         var teacherName = teacherCell.textContent;
         var attendanceCell = teacherRows[i].querySelector("td:last-child");
         var option = document.createElement("option");
-        
+
         option.textContent = teacherName;
         option.value = teacherName;
 
@@ -362,11 +405,23 @@
           option.style.fontWeight = "bold";
           option.style.color = "red";
         }
-        
+
         selectTeacher.appendChild(option);
+
+        // Highlight teachers already scheduled for the same period
+        var classTable = document.getElementById("classTable");
+        var rows = classTable.getElementsByTagName("tr");
+
+        for (var j = 1; j < rows.length; j++) {
+          var cells = rows[j].getElementsByTagName("td");
+          var currentCell = cells[cell.cellIndex];
+
+          if (currentCell.textContent === teacherName && currentCell !== cell) {
+            option.style.color = "blue";
+            break;
+          }
+        }
       }
-
-
 
       dialogBox.appendChild(selectTeacher);
 
@@ -381,6 +436,7 @@
         if (selectedTeacher) {
           cell.textContent = selectedTeacher;
           cell.classList.add("edited-cell");
+          cell.classList.remove("absent")
           updateSummaryTable();
         }
         closeReplacementDialog();
@@ -393,6 +449,7 @@
 
       document.body.appendChild(dialogOverlay);
     }
+
 
 
     function closeReplacementDialog() {
