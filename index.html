@@ -404,6 +404,7 @@
         if (attendanceCell.querySelector("select").value === "Absent") {
           option.style.fontWeight = "bold";
           option.style.color = "red";
+          option.textContent += " - AB";
         }
 
         selectTeacher.appendChild(option);
@@ -418,6 +419,7 @@
 
           if (currentCell.textContent === teacherName && currentCell !== cell) {
             option.style.color = "blue";
+            option.textContent += " - OC";
             break;
           }
         }
